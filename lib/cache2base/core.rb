@@ -46,10 +46,6 @@ module Cache2base
     @new_instance = false
     self
   end
-  
-  def update_state_and_attempts(id, values = {})
-    server.replace(id, values)
-  end
 
   # Side effect: Will update all values to latest in current model
   def update(params = {}, &block)
@@ -332,31 +328,27 @@ module Cache2base
     end
     
     def all(fields, params = {})
-      binding.pry
       keys = server.get(collection_key(fields))
-      puts keys.inspect
       hsh = server.get_multi(keys)
-      puts hsh.inspect
       nils = []
       
       o = (keys||[]).collect do |key| # to get it back in order since get_multi results in a hash
         if hsh[key] 
-          puts self.from_hash(Marshal.load(hsh[key])).inspect
+          self.from_hash(Marshal.load(hsh[key])).inspect
         else
           nils << key
           nil
         end
       end.compact
-      puts o.inspect 
       # I do not like doing "garbage collection" on read, but cant find any other place to put it.
       clean_nil_keys(fields, nils) if @ttl > 0 && !nils.empty?
       
       o
     end
     
-    #def all(fields, params = {})
-    #  arr = server.get(collection_key(fields))
-    #  find_by_keys(Array(arr)).compact
-    #end
+    def find_all(fields, params = {})
+      arr = server.get(collection_key(fields))
+      find_by_keys(Array(arr)).compact
+    end
   end
 end
