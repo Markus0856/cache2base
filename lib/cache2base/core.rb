@@ -334,7 +334,7 @@ module Cache2base
       
       o = (keys||[]).collect do |key| # to get it back in order since get_multi results in a hash
         if hsh[key] 
-          self.from_hash(Marshal.load(hsh[key])).inspect
+          self.from_hash(Marshal.load(hsh[key]))
         else
           nils << key
           nil
