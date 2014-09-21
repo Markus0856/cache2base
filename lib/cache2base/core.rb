@@ -47,6 +47,10 @@ module Cache2base
     self
   end
   
+  def update_state_and_attempts(id, values = {})
+    server.replace(id, values)
+  end
+
   # Side effect: Will update all values to latest in current model
   def update(params = {}, &block)
     raise "Invalid Primary Key" unless valid_primary_key?
