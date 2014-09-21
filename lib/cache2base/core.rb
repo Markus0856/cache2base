@@ -332,6 +332,7 @@ module Cache2base
     end
     
     def all(fields, params = {})
+      binding.pry
       keys = server.get(collection_key(fields))
       puts keys.inspect
       hsh = server.get_multi(keys)
