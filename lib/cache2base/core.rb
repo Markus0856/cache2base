@@ -47,6 +47,11 @@ module Cache2base
     self
   end
 
+  def save_event
+    result = @new_instance ? server.set(self.key, self.marshall, self.class.ttl) : server.replace(self.key, self.marshal, self.class.ttl)
+    self
+  end
+
   # Side effect: Will update all values to latest in current model
   def update(params = {}, &block)
     raise "Invalid Primary Key" unless valid_primary_key?
@@ -346,9 +351,10 @@ module Cache2base
       o
     end
     
-    def find_all(fields, params = {})
+    def find_all_events(fields, params = {})
       arr = server.get(collection_key(fields))
-      find_by_keys(Array(arr)).compact
+      results = find_by_keys(Array(arr)).compact.select { |result| result.account_id == fields.values.first }
+      results.select { |result| result.state == "pending" || result.state == "failing" }
     end
   end
 end
