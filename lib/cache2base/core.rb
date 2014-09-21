@@ -333,18 +333,20 @@ module Cache2base
     
     def all(fields, params = {})
       keys = server.get(collection_key(fields))
+      puts keys.inspect
       hsh = server.get_multi(keys)
+      puts hsh.inspect
       nils = []
       
       o = (keys||[]).collect do |key| # to get it back in order since get_multi results in a hash
         if hsh[key] 
-          self.from_hash(Marshal.load(hsh[key]))
+          puts self.from_hash(Marshal.load(hsh[key])).inspect
         else
           nils << key
           nil
         end
       end.compact
-      
+      puts o.inspect 
       # I do not like doing "garbage collection" on read, but cant find any other place to put it.
       clean_nil_keys(fields, nils) if @ttl > 0 && !nils.empty?
       
