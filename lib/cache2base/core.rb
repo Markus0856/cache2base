@@ -46,10 +46,6 @@ module Cache2base
     @new_instance = false
     self
   end
-  
-  def update_state_and_attempts(id, values = {})
-    server.replace(id, values)
-  end
 
   # Side effect: Will update all values to latest in current model
   def update(params = {}, &block)
@@ -344,16 +340,15 @@ module Cache2base
           nil
         end
       end.compact
-      
       # I do not like doing "garbage collection" on read, but cant find any other place to put it.
       clean_nil_keys(fields, nils) if @ttl > 0 && !nils.empty?
       
       o
     end
     
-    #def all(fields, params = {})
-    #  arr = server.get(collection_key(fields))
-    #  find_by_keys(Array(arr)).compact
-    #end
+    def find_all(fields, params = {})
+      arr = server.get(collection_key(fields))
+      find_by_keys(Array(arr)).compact
+    end
   end
 end
