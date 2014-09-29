@@ -361,5 +361,17 @@ module Cache2base
       arr = server.get(collection_key(fields))
       results = find_by_keys(Array(arr)).compact.select { |result| result.send(fields.keys.first) == fields.values.first }
     end
+
+    def find_all_pending_events(fields, params = {})
+      arr = server.get(collection_key(fields))
+      results = find_by_keys(Array(arr)).compact.select { |result| result.account_id == fields.values.first }
+      results.select { |result| result.state == "pending"}
+    end
+
+    def find_all_failing_events(fields, params = {})
+      arr = server.get(collection_key(fields))
+      results = find_by_keys(Array(arr)).compact.select { |result| result.account_id == fields.values.first }
+      results.select { |result| result.state == "failing" }
+    end
   end
 end
