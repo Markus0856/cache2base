@@ -257,7 +257,11 @@ module Cache2base
     end
     
     def hash_collection?(field)
-      @collection_settings[Array(field).join(',').to_s][:hash_key]
+      begin
+        @collection_settings[Array(field).join(',').to_s][:hash_key]
+      rescue 
+        false
+      end
     end
     
     def find(fields, params = {})
@@ -334,6 +338,7 @@ module Cache2base
     
     def all(fields, params = {})
       keys = server.get(collection_key(fields))
+      return [] if keys.nil?
       hsh = server.get_multi(keys)
       nils = []
       
@@ -355,6 +360,23 @@ module Cache2base
       arr = server.get(collection_key(fields))
       results = find_by_keys(Array(arr)).compact.select { |result| result.account_id == fields.values.first }
       results.select { |result| result.state == "pending" || result.state == "failing" }
+    end
+
+    def find_all_by(fields, params = {})
+      arr = server.get(collection_key(fields))
+      results = find_by_keys(Array(arr)).compact.select { |result| result.send(fields.keys.first) == fields.values.first }
+    end
+
+    def find_all_pending_events(fields, params = {})
+      arr = server.get(collection_key(fields))
+      results = find_by_keys(Array(arr)).compact.select { |result| result.account_id == fields.values.first }
+      results.select { |result| result.state == "pending"}
+    end
+
+    def find_all_failing_events(fields, params = {})
+      arr = server.get(collection_key(fields))
+      results = find_by_keys(Array(arr)).compact.select { |result| result.account_id == fields.values.first }
+      results.select { |result| result.state == "failing" }
     end
   end
 end
