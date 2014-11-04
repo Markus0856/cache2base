@@ -4,7 +4,7 @@ require File.join(File.dirname(__FILE__), 'spec_helper')
 shared_examples_for "all MyModel cache2base models" do
   it "should initialize correctly" do
     @model.instance_variable_get(:"@basename").should == @set_basename
-    @model.instance_variable_get(:"@ttl").should == 3
+    @model.instance_variable_get(:"@ttl").should == 10
   end
   
   it "should create accessors" do
@@ -134,7 +134,7 @@ describe "A Cache2base model with a 1 field primary key" do
     class MyModel1
       include Cache2base
       set_basename 'mm'
-      set_ttl 3 # 3 seconds (so they expire after testing)
+      set_ttl 10 # 10 seconds (so they expire after testing)
       set_fields :user_id, :first_name, :last_name, :other, :other2
 
       set_primary_key :user_id
@@ -547,6 +547,12 @@ describe "A Cache2base model with a 2 field collection and a 1 field collection,
     results.length.should == 0
     
     MyModel5h.server.get(MyModel5h.collection_key(:first_name => 'c1', :last_name => 'l1')).length.should == 0
+  end
+
+  it "should return empty array if there isn't the key" do
+    results = MyModel5h.all(:first_name => 'do_not_exist_key')
+    results = MyModel5h.all(:last_name => 'do_not_exist_key')
+    results.should be_empty
   end
   
   it_should_behave_like "all MyModel cache2base models"

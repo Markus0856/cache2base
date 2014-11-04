@@ -257,7 +257,11 @@ module Cache2base
     end
     
     def hash_collection?(field)
-      @collection_settings[Array(field).join(',').to_s][:hash_key]
+      begin
+        @collection_settings[Array(field).join(',').to_s][:hash_key]
+      rescue 
+        false
+      end
     end
     
     def find(fields, params = {})
@@ -334,6 +338,7 @@ module Cache2base
     
     def all(fields, params = {})
       keys = server.get(collection_key(fields))
+      return [] if keys.nil?
       hsh = server.get_multi(keys)
       nils = []
       
